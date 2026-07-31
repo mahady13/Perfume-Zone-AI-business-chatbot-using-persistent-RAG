@@ -78,8 +78,11 @@ api_key=os.getenv("OPENROUTER_API_KEY")
 #     hf_api_token=hf_api_key,
 #     model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 # )
-embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-
+@st.cache_resource
+def load_embedding():
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+    return embeddings
+embedding=load_embedding()
 # gemini_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
 # # embedding = GoogleGenerativeAIEmbeddings(
 # #     model="models/gemini-embedding-001",
@@ -90,7 +93,7 @@ pdf_files = glob.glob("./assets/*.pdf")
 
 @st.cache_resource
 def load_vectorstore():
-    assist_directory="./assets"
+    # assist_directory="./assets"
     persist_directory='./chromadb'
     if os.path.exists(persist_directory) and os.listdir(persist_directory):
         vectorstore=Chroma(
@@ -98,18 +101,18 @@ def load_vectorstore():
         )
         return vectorstore
 
-    elif pdf_files:
-        loader = PyPDFDirectoryLoader(assist_directory)
-        documents = loader.load()
-
-        splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=30)
-        split_text = splitter.split_documents(documents)
-        vectorstore=Chroma.from_documents(
-            documents=split_text,
-            embedding=embedding,
-            persist_directory=persist_directory
-        )
-        return vectorstore
+    # elif pdf_files:
+    #     loader = PyPDFDirectoryLoader(assist_directory)
+    #     documents = loader.load()
+    #
+    #     splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=30)
+    #     split_text = splitter.split_documents(documents)
+    #     vectorstore=Chroma.from_documents(
+    #         documents=split_text,
+    #         embedding=embedding,
+    #         persist_directory=persist_directory
+    #     )
+    #     return vectorstore
     return None
 
 vectorstore=load_vectorstore()
@@ -120,7 +123,7 @@ def get_llm(model_id):
         base_url="https://openrouter.ai/api/v1",
         model=model_id,
         api_key=api_key,
-        max_tokens=1000,
+        max_tokens=700,
         temperature=0.3,
         default_headers={
             "HTTP-Referer":"https://localhost:8501",
