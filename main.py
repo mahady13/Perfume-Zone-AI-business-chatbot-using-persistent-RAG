@@ -39,3 +39,18 @@ with st.sidebar:
         st.link_button("LinkedIn", "https://www.linkedin.com/in/mohiuddin-mahady/", use_container_width=True)
     with col4:
         st.link_button("Github", 'https://www.github.com/mahady13', use_container_width=True)
+#fixed them as comments for future fast ci/cd
+# available_models={
+#     "Ling 3 Flash": "inclusionai/ling-3.0-flash:free",
+#     "Google Gemma 4-26b-a4b": "google/gemma-4-26b-a4b-it:free",
+#     "Nvidia Nemotron 3 Ultra": "nvidia/nemotron-3-ultra-550b-a55b:free",
+#     "Nvidia Nano Omni": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+#     "Nemotron 3 Super": "nvidia/nemotron-3-super-120b-a12b:free",
+#     "Cohere: North Mini Code": "cohere/north-mini-code:free",
+#     "PoolSide Laguna S2.1": "poolside/laguna-s-2.1:free",
+#     "PoolSide Laguna XS2.1": "poolside/laguna-xs-2.1:free",
+#     "OpenAI: gpt-oss-20b": "openai/gpt-oss-20b:free",
+#     "Auto Free Router": "openrouter/free",
+# }
+PRIMARY_MODEL="inclusionai/ling-3.0-flash:free"
+BACKUP_MODEL="openrouter/free"
