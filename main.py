@@ -159,3 +159,7 @@ def get_response(user_query,chat_history,vectorstore):
             "user_query": user_query
         })
         return output
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history=[
+        AIMessage(content="Assalamu Alaikum vaiya/bon! Welcome to Perfume Zone. ✨ Ajke kon luxurious scent diye apnar mon bhalo korbo bolen? 🍊")
+    ]
