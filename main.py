@@ -1,5 +1,5 @@
 import streamlit as st
-import glob
+# import glob
 import os
 from streamlit_carousel import carousel
 from dotenv import load_dotenv
@@ -9,9 +9,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_huggingface import HuggingFaceEmbeddings
 # from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
+# from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_chroma import Chroma
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+# from langchain_text_splitters import RecursiveCharacterTextSplitter
 load_dotenv()
 hf_api_key = os.getenv("HUGGINGFACE_API_KEY")
 st.set_page_config(page_title="Perfume Zone AI", page_icon="✨", layout="centered")
@@ -82,6 +82,7 @@ api_key=os.getenv("OPENROUTER_API_KEY")
 def load_embedding():
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
     return embeddings
+
 embedding=load_embedding()
 # gemini_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
 # # embedding = GoogleGenerativeAIEmbeddings(
@@ -89,7 +90,7 @@ embedding=load_embedding()
 # #     api_key=gemini_key
 # )
 
-pdf_files = glob.glob("./assets/*.pdf")
+# pdf_files = glob.glob("./assets/*.pdf")
 
 @st.cache_resource
 def load_vectorstore():
@@ -123,13 +124,15 @@ def get_llm(model_id):
         base_url="https://openrouter.ai/api/v1",
         model=model_id,
         api_key=api_key,
-        max_tokens=700,
+        max_tokens=1000,
         temperature=0.3,
         default_headers={
-            "HTTP-Referer":"https://localhost:8501",
-            "X-Title":"PerfumeZone Chatbot"
+            "HTTP-Referer":"https://perfumezoneai.streamlit.app/",
+            "X-Title":"PerfumeZone AI"
         }
     )
+
+
 
 def get_response(user_query,chat_history,vectorstore):
     context=""
