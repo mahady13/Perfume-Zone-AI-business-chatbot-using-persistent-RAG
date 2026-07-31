@@ -9,8 +9,6 @@ Instead of relying only on the language model, the chatbot retrieves information
 
 ## 🚀 Live Demo
 
-> Add your Streamlit deployment link here
-
 ```
 https://perfumezoneai.streamlit.app
 ```
