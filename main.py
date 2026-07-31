@@ -73,10 +73,13 @@ PRIMARY_MODEL="inclusionai/ling-3.0-flash:free"
 BACKUP_MODEL="openrouter/free"
 
 api_key=os.getenv("OPENROUTER_API_KEY")
-embedding=HuggingFaceInferenceAPIEmbeddings(
-    api_key=hf_api_key,
-    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-)
+# embedding=HuggingFaceInferenceAPIEmbeddings(
+#     api_key=hf_api_key,
+#     hf_api_token=hf_api_key,
+#     model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+# )
+embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+
 pdf_files = glob.glob("./assets/*.pdf")
 
 @st.cache_resource
