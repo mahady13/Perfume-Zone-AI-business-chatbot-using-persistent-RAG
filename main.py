@@ -81,7 +81,7 @@ api_key=os.getenv("OPENROUTER_API_KEY")
 
 gemini_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
 embedding = GoogleGenerativeAIEmbeddings(
-    model="models/text-embedding-004",
+    model="models/gemini-embedding-001",
     api_key=gemini_key
 )
 
