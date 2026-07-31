@@ -1,5 +1,4 @@
 import streamlit as st
-# import glob
 import os
 from streamlit_carousel import carousel
 from dotenv import load_dotenv
@@ -8,10 +7,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_huggingface import HuggingFaceEmbeddings
-# from langchain_google_genai import GoogleGenerativeAIEmbeddings
-# from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_chroma import Chroma
-# from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 load_dotenv()
 hf_api_key = os.getenv("HUGGINGFACE_API_KEY")
 st.set_page_config(page_title="Perfume Zone AI", page_icon="✨", layout="centered")
@@ -56,64 +53,27 @@ with st.sidebar:
         st.link_button("LinkedIn", "https://www.linkedin.com/in/mohiuddin-mahady/", use_container_width=True)
     with col4:
         st.link_button("Github", 'https://www.github.com/mahady13', use_container_width=True)
-#fixed them as comments for future fast ci/cd
-# available_models={
-#     "Ling 3 Flash": "inclusionai/ling-3.0-flash:free",
-#     "Google Gemma 4-26b-a4b": "google/gemma-4-26b-a4b-it:free",
-#     "Nvidia Nemotron 3 Ultra": "nvidia/nemotron-3-ultra-550b-a55b:free",
-#     "Nvidia Nano Omni": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
-#     "Nemotron 3 Super": "nvidia/nemotron-3-super-120b-a12b:free",
-#     "Cohere: North Mini Code": "cohere/north-mini-code:free",
-#     "PoolSide Laguna S2.1": "poolside/laguna-s-2.1:free",
-#     "PoolSide Laguna XS2.1": "poolside/laguna-xs-2.1:free",
-#     "OpenAI: gpt-oss-20b": "openai/gpt-oss-20b:free",
-#     "Auto Free Router": "openrouter/free",
-# }
+
 PRIMARY_MODEL="inclusionai/ling-3.0-flash:free"
 BACKUP_MODEL="openrouter/free"
 
 api_key=os.getenv("OPENROUTER_API_KEY")
-# embedding=HuggingFaceInferenceAPIEmbeddings(
-#     api_key=hf_api_key,
-#     hf_api_token=hf_api_key,
-#     model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-# )
+
 @st.cache_resource
 def load_embedding():
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
     return embeddings
 
 embedding=load_embedding()
-# gemini_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
-# # embedding = GoogleGenerativeAIEmbeddings(
-# #     model="models/gemini-embedding-001",
-# #     api_key=gemini_key
-# )
-
-# pdf_files = glob.glob("./assets/*.pdf")
 
 @st.cache_resource
 def load_vectorstore():
-    # assist_directory="./assets"
     persist_directory='./chromadb'
     if os.path.exists(persist_directory) and os.listdir(persist_directory):
         vectorstore=Chroma(
             persist_directory=persist_directory,embedding_function=embedding,
         )
         return vectorstore
-
-    # elif pdf_files:
-    #     loader = PyPDFDirectoryLoader(assist_directory)
-    #     documents = loader.load()
-    #
-    #     splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=30)
-    #     split_text = splitter.split_documents(documents)
-    #     vectorstore=Chroma.from_documents(
-    #         documents=split_text,
-    #         embedding=embedding,
-    #         persist_directory=persist_directory
-    #     )
-    #     return vectorstore
     return None
 
 vectorstore=load_vectorstore()
