@@ -7,7 +7,8 @@ from langchain_core.messages import AIMessage,HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -77,13 +78,13 @@ api_key=os.getenv("OPENROUTER_API_KEY")
 #     hf_api_token=hf_api_key,
 #     model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 # )
-# embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
-gemini_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
-embedding = GoogleGenerativeAIEmbeddings(
-    model="models/gemini-embedding-001",
-    api_key=gemini_key
-)
+# gemini_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
+# # embedding = GoogleGenerativeAIEmbeddings(
+# #     model="models/gemini-embedding-001",
+# #     api_key=gemini_key
+# )
 
 pdf_files = glob.glob("./assets/*.pdf")
 
