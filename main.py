@@ -79,7 +79,7 @@ api_key=os.getenv("OPENROUTER_API_KEY")
 # )
 # embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
-gemini_key = os.getenv("GEMINI_API_KEY")
+gemini_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
 embedding = GoogleGenerativeAIEmbeddings(
     model="models/text-embedding-004",
     api_key=gemini_key
