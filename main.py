@@ -8,11 +8,12 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 load_dotenv()
-
+hf_api_key = os.getenv("HUGGINGFACE_API_KEY")
 st.set_page_config(page_title="Perfume Zone AI", page_icon="✨", layout="centered")
 
 st.markdown("""
@@ -72,7 +73,10 @@ PRIMARY_MODEL="inclusionai/ling-3.0-flash:free"
 BACKUP_MODEL="openrouter/free"
 
 api_key=os.getenv("OPENROUTER_API_KEY")
-embedding=HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+embedding=HuggingFaceInferenceAPIEmbeddings(
+    api_key=hf_api_key,
+    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+)
 pdf_files = glob.glob("./assets/*.pdf")
 
 @st.cache_resource
@@ -177,7 +181,7 @@ def get_response(user_query,chat_history,vectorstore):
         return output
 if "chat_history" not in st.session_state:
     st.session_state.chat_history=[
-        AIMessage(content="Assalamu Alaikum vaiya/bon! Welcome to Perfume Zone. ✨ Ajke kon luxurious scent diye apnar mon bhalo korbo bolen? 🍊")
+        AIMessage(content="আসসালামু আলাইকুম! পারফিউম জোনে আপনাকে স্বাগতম। ✨ আজকে কোন চমৎকার সুগন্ধি দিয়ে আপনার মন ভালো করব বলুন? 🍊")
     ]
 
 perfume_banners = [
