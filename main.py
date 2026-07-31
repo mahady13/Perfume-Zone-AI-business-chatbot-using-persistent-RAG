@@ -14,8 +14,23 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 load_dotenv()
 
 st.set_page_config(page_title="Perfume Zone AI", page_icon="✨", layout="centered")
-st.title("Perfume Zone AI✨",text_alignment="center")
 
+st.markdown("""
+    <style>
+    .stCarousel, [data-testid="stHtml"] iframe, .carousel-item img {
+        max-height: 380px !important;    /* এখানে উচ্চতা আপনার পছন্দমতো (যেমন ৩০০ বা ৩৫০) কমাতে পারেন */
+        object-fit: cover !important;    /* ছবি যাতে চ্যাপ্টা না হয়ে সুন্দরভাবে ক্রপ হয় */
+        border-radius: 12px !important;
+        margin: 0 auto !important;
+    }
+
+    [data-testid="element-container"] {
+        margin-bottom: 0.5rem !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("Perfume Zone AI✨",text_alignment="center")
 
 with st.sidebar:
     st.title("Perfume Zone ✨")
@@ -169,12 +184,12 @@ perfume_banners = [
     {
         "title": "",
         "text": "",
-        "img": "https://scontent.fdac198-2.fna.fbcdn.net/v/t39.30808-6/753255019_1019734910871492_8371982263359702305_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=s1080x1080&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeGH_IVCS_llaqhPkTE_ZjOz-Y3sWK16vpH5jexYrXq-kVtMkDkxXS23IUXD9XgdvwRd4XkUBNyisdgP14bWEJRR&_nc_ohc=l0rhr8H2XmQQ7kNvwFGp5Yu&_nc_oc=AdoAmBp55fzOjo36cIHT_ULWViD3zFlfYFF518PfrE0i22rkq83LV3SbS-Mm_9R_D8ywwHB5GH-a9K0YhBhLVXlv&_nc_zt=23&_nc_ht=scontent.fdac198-2.fna&_nc_gid=jMVaXYQL6UxZkjB-SDAhFQ&_nc_ss=7b2a8&oh=00_AQFnb0UMoz7wK3vLtSjLvZ1E-KozsyDKRfAythRSHOi-7w&oe=6A71CBA3", # এখানে আপনার আসল ইমেজ লিংক বসাবেন
+        "img": "https://scontent.fdac24-2.fna.fbcdn.net/v/t39.30808-6/739012691_1003739512471032_851677454991239113_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=s1080x1080&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeH6_pNoQiSjTfpXQNRXqFi2r384q7P09X-vfzirs_T1f7641NC7cBCUVlQI4R6oSwYTfEwcHG3bNWf3oKnuLJ_X&_nc_ohc=3xxLUoLpzEMQ7kNvwEHvelh&_nc_oc=Adrz5itzM3nLaiinLIsTfo5im4iQpWWq5vYdOTkZGHmxgv6oKUl1cBx3gWKqZHUxR7djtGZMNU7iJF4piuy_k5v8&_nc_zt=23&_nc_ht=scontent.fdac24-2.fna&_nc_gid=ifm1qUIIp29AHGtXuH08uA&_nc_ss=7b2a8&oh=00_AQFL-UUkw5HX_CE-bmibPo9YjEfILITNbRV0QMXpUq-caA&oe=6A71FCBD",
     },
     {
         "title": "",
         "text": "",
-        "img": "https://scontent.fdac24-1.fna.fbcdn.net/v/t39.30808-6/753306595_1018971857614464_140812124907187197_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=s1080x1080&_nc_cat=110&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeGTybUudH3iJcELmglq5KmSZxfyVHwd8fRnF_JUfB3x9N0pRC0MSusaXmpT4vB4uz_5U6jfrnYpU5zN_XjIO2-7&_nc_ohc=ukax4ALIp-IQ7kNvwFNKgTW&_nc_oc=Adrtclh6RfqG9VqeCrebBblgZxznHY3AtFXlYCIZ1pOwzcb0MHny_ZYqiQOhnTLVSbag9qUaPA8ZhgknzpCYQGOp&_nc_zt=23&_nc_ht=scontent.fdac24-1.fna&_nc_gid=EZxuqe1UPB_S6TI2JNTpTQ&_nc_ss=7b2a8&oh=00_AQGBOJM9ybcRGSpuLKARVSN2amPKz_43BNNdo13GgQjdlw&oe=6A71E317",
+        "img": "https://scontent.fdac24-5.fna.fbcdn.net/v/t39.30808-6/725199212_990942237084093_1693890862720007805_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=s1080x1080&_nc_cat=101&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeGwD1p8YjyLJdx3e02z68VFCzwnvYJXC0kLPCe9glcLSeKvcZrEv5iVRsGyo_0Zcb_qoVKl9hFf3Q-HuG3efgV2&_nc_ohc=rgl8mYgO6I4Q7kNvwFhBamD&_nc_oc=AdoWm6QJ0weL3zis5HKyWVQqXByEFaTk5wIKt32RINjJ4RgHkKdUxuIePVpUbJesbRCAzC_jWk_c1prRKGrIGzAR&_nc_zt=23&_nc_ht=scontent.fdac24-5.fna&_nc_gid=ihg0OWm0287_NkBjBHR_HQ&_nc_ss=7b2a8&oh=00_AQEzOAzVfwRUCrKYwUh3dla719IhgkqKisr4ZAjxbtZ2jg&oe=6A71C75C",
     },
     {
         "title": "",
