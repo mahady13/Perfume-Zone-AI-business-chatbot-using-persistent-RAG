@@ -54,3 +54,33 @@ with st.sidebar:
 # }
 PRIMARY_MODEL="inclusionai/ling-3.0-flash:free"
 BACKUP_MODEL="openrouter/free"
+
+api_key=os.getenv("OPENROUTER_API_KEY")
+embedding=HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+pdf_files = glob.glob("./assets/*.pdf")
+
+@st.cache_resource
+def load_vectorstore():
+    assist_directory="./assets"
+    persist_directory='./chromadb'
+    if os.path.exists(persist_directory) and os.listdir(persist_directory):
+        vectorstore=Chroma(
+            persist_directory=persist_directory,embedding_function=embedding,
+        )
+        return vectorstore
+
+    elif pdf_files:
+        loader = PyPDFDirectoryLoader(assist_directory)
+        documents = loader.load()
+
+        splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=50)
+        split_text = splitter.split_documents(documents)
+        vectorstore=Chroma.from_documents(
+            documents=split_text,
+            embedding=embedding,
+            persist_directory=persist_directory
+        )
+        return vectorstore
+    return None
+
+vectorstore=load_vectorstore()
