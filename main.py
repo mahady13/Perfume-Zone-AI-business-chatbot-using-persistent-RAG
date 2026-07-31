@@ -163,3 +163,11 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history=[
         AIMessage(content="Assalamu Alaikum vaiya/bon! Welcome to Perfume Zone. ✨ Ajke kon luxurious scent diye apnar mon bhalo korbo bolen? 🍊")
     ]
+
+for message in st.session_state.chat_history:
+    if isinstance(message,AIMessage):
+        with st.chat_message("assistant"):
+            st.markdown(message.content)
+    elif isinstance(message,HumanMessage):
+        with st.chat_message("user"):
+            st.markdown(message.content)
