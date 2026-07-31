@@ -8,7 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_google_genai import GoogleGenAIEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_chroma import Chroma
@@ -82,8 +82,8 @@ api_key=os.getenv("OPENROUTER_API_KEY")
 # embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 
 gemini_key = os.getenv("GEMINI_API_KEY")
-embedding = GoogleGenAIEmbeddings(
-    model="models/text-embedding-004",
+embedding = GoogleGenerativeAIEmbeddings(
+    model="text-embedding-04",
     google_api_key=gemini_key
 )
 
