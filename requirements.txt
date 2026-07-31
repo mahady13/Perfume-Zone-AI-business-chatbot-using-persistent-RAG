@@ -1,0 +1,9 @@
+langchain
+langchain_community
+langchain_core
+langchain_openai
+dotenv
+unstructured[all-docs]
+streamlit
+langchain_chroma
+langchain_text_splitters
