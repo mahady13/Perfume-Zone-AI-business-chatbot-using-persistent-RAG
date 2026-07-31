@@ -7,9 +7,7 @@ from langchain_core.messages import AIMessage,HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -208,17 +206,17 @@ perfume_banners = [
     {
         "title": "",
         "text": "",
-        "img": "https://scontent.fdac24-5.fna.fbcdn.net/v/t39.30808-6/746026711_1012032108308439_306530557166542663_n.jpg?stp=dst-jpg_tt6&cstp=mx1254x1254&ctp=s1254x1254&_nc_cat=101&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeElUKi9Iy_becyQ7xwYcrP6wF6mHxeg4JLAXqYfF6Dgktzp0R9eWbeXXJxe1xnWNKweLruSJQ2efQ7dhM6drf_7&_nc_ohc=IJAn4rumjaMQ7kNvwEYqDvu&_nc_oc=Adp4F4CLY0_5JcFuuh62v_wPfSrgLOTSSswAgPUSmb-maeQr2aG99lbdkQ3CIZ0aH_URMsbGdujLCDx9N6DqU0bh&_nc_zt=23&_nc_ht=scontent.fdac24-5.fna&_nc_gid=h-1BCjN6j3K9j65bKwSAlg&_nc_ss=7b2a8&oh=00_AQF_GDOmcViTGRhpgrIcanGFu5KKBjINM4zhuMCE-6Ymzg&oe=6A71DBDA", # এখানে আপনার আসল ইমেজ লিংক বসাবেন
+        "img": "https://scontent.fdac24-5.fna.fbcdn.net/v/t39.30808-6/746026711_1012032108308439_306530557166542663_n.jpg?stp=dst-jpg_tt6&cstp=mx1254x1254&ctp=s1254x1254&_nc_cat=101&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeElUKi9Iy_becyQ7xwYcrP6wF6mHxeg4JLAXqYfF6Dgktzp0R9eWbeXXJxe1xnWNKweLruSJQ2efQ7dhM6drf_7&_nc_ohc=IJAn4rumjaMQ7kNvwEYqDvu&_nc_oc=Adp4F4CLY0_5JcFuuh62v_wPfSrgLOTSSswAgPUSmb-maeQr2aG99lbdkQ3CIZ0aH_URMsbGdujLCDx9N6DqU0bh&_nc_zt=23&_nc_ht=scontent.fdac24-5.fna&_nc_gid=h-1BCjN6j3K9j65bKwSAlg&_nc_ss=7b2a8&oh=00_AQF_GDOmcViTGRhpgrIcanGFu5KKBjINM4zhuMCE-6Ymzg&oe=6A71DBDA",
     },
     {
         "title": "",
         "text": "",
-        "img": "https://scontent.fdac24-5.fna.fbcdn.net/v/t39.30808-6/635454359_889551030556548_8145614045911123595_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=s1080x1080&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeFlWvooZ6_eBS0Pm8opxFbf04D3O_q7bMPTgPc7-rtsw_TiIUPjdQdJruouDbWScsIm2RAKH4dt9exI4qDbQIFi&_nc_ohc=_aJL_Bw4WQEQ7kNvwFFo9J9&_nc_oc=Adosi8nldCC2fnC3n3EZxKjLRVfc9jDAQWyEiHYaVrp-_jcOeZESGRnc_XKiDt2nmVcCmzEQrZw4Ft-nVsHzSU3b&_nc_zt=23&_nc_ht=scontent.fdac24-5.fna&_nc_gid=exrOejJF5E3YX6h_rlcOYQ&_nc_ss=7b2a8&oh=00_AQG3BHAhyeFkk_9TGR-E6B-jKIiVhkZTD0-CiIOM-MsP_w&oe=6A71CC8F", # এখানে আপনার আসল ইমেজ লিংক বসাবেন
+        "img": "https://scontent.fdac24-5.fna.fbcdn.net/v/t39.30808-6/635454359_889551030556548_8145614045911123595_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=s1080x1080&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeFlWvooZ6_eBS0Pm8opxFbf04D3O_q7bMPTgPc7-rtsw_TiIUPjdQdJruouDbWScsIm2RAKH4dt9exI4qDbQIFi&_nc_ohc=_aJL_Bw4WQEQ7kNvwFFo9J9&_nc_oc=Adosi8nldCC2fnC3n3EZxKjLRVfc9jDAQWyEiHYaVrp-_jcOeZESGRnc_XKiDt2nmVcCmzEQrZw4Ft-nVsHzSU3b&_nc_zt=23&_nc_ht=scontent.fdac24-5.fna&_nc_gid=exrOejJF5E3YX6h_rlcOYQ&_nc_ss=7b2a8&oh=00_AQG3BHAhyeFkk_9TGR-E6B-jKIiVhkZTD0-CiIOM-MsP_w&oe=6A71CC8F",
     },
     {
         "title": "",
         "text": "",
-        "img": "https://scontent.fdac198-2.fna.fbcdn.net/v/t39.30808-6/738691597_1004330489078601_7107487147553559495_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=s1080x1080&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeFs0VIv8f2UuvHxcRRiQFGGDw5TOknRCI4PDlM6SdEIjgZao1U1jRTv_YSxO_8aGDVr0DWBPtERRynaz9dnAcL0&_nc_ohc=ltkkSsHeAbUQ7kNvwH0LDI7&_nc_oc=AdoaIuiXljn9k-s-bSA0RqE4_04-js0pm-QRvI21l0aUwapscdM9mBn0htXgaeHDL0xhsXn8RuwD52GZqqD83nKk&_nc_zt=23&_nc_ht=scontent.fdac198-2.fna&_nc_gid=dAhSp7_ppd22XwOm7UtYsA&_nc_ss=7b2a8&oh=00_AQGWTPnBEy6IX1Qn0kw9qn4ZormZNFns9TeIJqOi7fstxw&oe=6A71E2AD", # এখানে আপনার আসল ইমেজ লিংক বসাবেন
+        "img": "https://scontent.fdac198-2.fna.fbcdn.net/v/t39.30808-6/738691597_1004330489078601_7107487147553559495_n.jpg?stp=dst-jpg_tt6&cstp=mx1080x1080&ctp=s1080x1080&_nc_cat=107&ccb=1-7&_nc_sid=833d8c&_nc_eui2=AeFs0VIv8f2UuvHxcRRiQFGGDw5TOknRCI4PDlM6SdEIjgZao1U1jRTv_YSxO_8aGDVr0DWBPtERRynaz9dnAcL0&_nc_ohc=ltkkSsHeAbUQ7kNvwH0LDI7&_nc_oc=AdoaIuiXljn9k-s-bSA0RqE4_04-js0pm-QRvI21l0aUwapscdM9mBn0htXgaeHDL0xhsXn8RuwD52GZqqD83nKk&_nc_zt=23&_nc_ht=scontent.fdac198-2.fna&_nc_gid=dAhSp7_ppd22XwOm7UtYsA&_nc_ss=7b2a8&oh=00_AQGWTPnBEy6IX1Qn0kw9qn4ZormZNFns9TeIJqOi7fstxw&oe=6A71E2AD",
     }
 ]
 
