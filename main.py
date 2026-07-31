@@ -81,8 +81,8 @@ api_key=os.getenv("OPENROUTER_API_KEY")
 
 gemini_key = os.getenv("GEMINI_API_KEY")
 embedding = GoogleGenerativeAIEmbeddings(
-    model="text-embedding-04",
-    google_api_key=gemini_key
+    model="models/text-embedding-004",
+    api_key=gemini_key
 )
 
 pdf_files = glob.glob("./assets/*.pdf")
