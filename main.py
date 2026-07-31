@@ -8,6 +8,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import GoogleGenAIEmbeddings
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
 from langchain_chroma import Chroma
@@ -19,8 +20,8 @@ st.set_page_config(page_title="Perfume Zone AI", page_icon="✨", layout="center
 st.markdown("""
     <style>
     .stCarousel, [data-testid="stHtml"] iframe, .carousel-item img {
-        max-height: 380px !important;    /* এখানে উচ্চতা আপনার পছন্দমতো (যেমন ৩০০ বা ৩৫০) কমাতে পারেন */
-        object-fit: cover !important;    /* ছবি যাতে চ্যাপ্টা না হয়ে সুন্দরভাবে ক্রপ হয় */
+        max-height: 380px !important; 
+        object-fit: cover !important;    
         border-radius: 12px !important;
         margin: 0 auto !important;
     }
@@ -78,7 +79,13 @@ api_key=os.getenv("OPENROUTER_API_KEY")
 #     hf_api_token=hf_api_key,
 #     model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 # )
-embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+# embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+
+gemini_key = os.getenv("GEMINI_API_KEY")
+embedding = GoogleGenAIEmbeddings(
+    model="models/text-embedding-004",
+    google_api_key=gemini_key
+)
 
 pdf_files = glob.glob("./assets/*.pdf")
 
