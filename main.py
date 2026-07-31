@@ -171,3 +171,17 @@ for message in st.session_state.chat_history:
     elif isinstance(message,HumanMessage):
         with st.chat_message("user"):
             st.markdown(message.content)
+
+user_query=st.chat_input("Type your message here")
+
+if user_query:
+    st.session_state.chat_history.append(HumanMessage(content=user_query))
+    with st.chat_message("user"):
+        st.markdown(user_query)
+
+    try:
+        response=st.write_stream(get_response(user_query,st.session_state.chat_history,vectorstore))
+        st.session_state.chat_history.append(AIMessage(content=response))
+
+    except Exception as e:
+        st.exception(e)
