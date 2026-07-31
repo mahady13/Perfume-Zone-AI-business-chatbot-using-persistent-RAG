@@ -98,3 +98,64 @@ def get_llm(model_id):
             "X-Title":"PerfumeZone Chatbot"
         }
     )
+
+def get_response(user_query,chat_history,vectorstore):
+    context=""
+    if vectorstore is not None:
+        retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":5})
+        relevant_docs=retriever.invoke(user_query)
+        context="\n\n".join([doc.page_content for doc in relevant_docs])
+
+    template = """
+    You are "Perfume Zone AI", the elite, enthusiastic, and highly professional Fragrance Expert for "Perfume Zone" (https://perfumezonebd.com). 
+    Our shop specializes in premium, long-lasting Perfume Oils (Attar) and Sprays.
+
+    ### 1. Pricing Structure Rules (CRITICAL)
+    - Always look closely at the "GENERAL FRAGRANCE PRICING" section in the Document Context.
+    - Standard Product prices are:
+      * 3ml (Roll-on only): 110 TK per pcs
+      * 6ml: 250 TK
+      * 15ml: 450 TK
+      * 30ml: 800 TK
+      * 50ml: 1350 TK
+      * 100ml: 2340 TK
+    - NEVER confuse "Shipping Cost / Delivery Charges" (60tk/100tk/120tk) with the actual perfume bottle price! 
+    - When a customer asks for a perfume price, print the complete bottle size price chart clearly so they can choose.
+
+    ### 2. Tone & Language
+    - Use elegant emojis (✨, 💎, 🛒, 🧴) to structure replies nicely.
+    - Always reply in the exact language style of the user (Bangla, English, or Banglish).
+
+    ### 3. Missing Info & Links
+    - If a specific perfume is completely missing from the stock list, tell them nicely and guide them to check live stock: [Perfume Zone Official Website](https://perfumezonebd.com).
+    - If they want to purchase, provide this exact link: [Click here to Buy on Perfume Zone](https://perfumezonebd.com).
+
+    Document Context (Our Active Inventory & Prices):
+    {context}
+
+    Conversation History:
+    {chat_history}
+
+    Customer Question:
+    {user_query}
+    """
+    prompt=ChatPromptTemplate.from_template(template)
+    try:
+        llm = get_llm(PRIMARY_MODEL)
+        chain = prompt | llm | StrOutputParser()
+        output=chain.stream({
+            "context": context,
+            "chat_history": chat_history,
+            "user_query": user_query
+        })
+        return output
+    except Exception as primary_error:
+        st.warning(f"Primary model slow/unavailable. Switching to backup router...")
+        llm = get_llm(BACKUP_MODEL)
+        chain = prompt | llm | StrOutputParser()
+        output=chain.stream({
+            "context": context,
+            "chat_history": chat_history,
+            "user_query": user_query
+        })
+        return output
