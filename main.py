@@ -84,3 +84,17 @@ def load_vectorstore():
     return None
 
 vectorstore=load_vectorstore()
+
+@st.cache_resource
+def get_llm(model_id):
+    return ChatOpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        model=model_id,
+        api_key=api_key,
+        max_tokens=1000,
+        temperature=0.3,
+        default_headers={
+            "HTTP-Referer":"https://localhost:8501",
+            "X-Title":"PerfumeZone Chatbot"
+        }
+    )
