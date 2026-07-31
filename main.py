@@ -13,7 +13,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 load_dotenv()
 
 st.set_page_config(page_title="Perfume Zone AI", page_icon="✨", layout="centered")
-st.title("Perfume Zone AI✨")
+st.title("Perfume Zone AI✨",text_alignment="center")
 
 
 with st.sidebar:
@@ -73,7 +73,7 @@ def load_vectorstore():
         loader = PyPDFDirectoryLoader(assist_directory)
         documents = loader.load()
 
-        splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=50)
+        splitter = RecursiveCharacterTextSplitter(chunk_size=100, chunk_overlap=30)
         split_text = splitter.split_documents(documents)
         vectorstore=Chroma.from_documents(
             documents=split_text,
@@ -102,7 +102,7 @@ def get_llm(model_id):
 def get_response(user_query,chat_history,vectorstore):
     context=""
     if vectorstore is not None:
-        retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":5})
+        retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":3})
         relevant_docs=retriever.invoke(user_query)
         context="\n\n".join([doc.page_content for doc in relevant_docs])
 
