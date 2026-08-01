@@ -4,15 +4,31 @@ from streamlit_carousel import carousel
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage,HumanMessage
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_groq import ChatGroq
 from langchain_chroma import Chroma
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.retrievers import BM25Retriever
+from langchain.retrievers import EnsembleRetriever
+
+
 
 load_dotenv()
-hf_api_key = os.getenv("HUGGINGFACE_API_KEY")
-st.set_page_config(page_title="Perfume Zone AI", page_icon="✨", layout="centered")
-
+st.set_page_config(
+    page_title="Perfume Zone AI - Fragrance Assistant",
+    page_icon="✨",
+    layout="centered",
+    initial_sidebar_state="auto",
+    menu_items={
+        'Get Help': 'https://perfumezonebd.com',
+        'Report a bug': "https://github.com/mahady13/Perfume-Zone-AI-business-chatbot-using-persistent-RAG/issues",
+        'About': "AI-Powered Fragrance Assistant for Perfume Zone BD"
+    }
+)
+st.title("✨ Perfume Zone AI Assistant ✨",text_alignment="center")
 st.markdown("""
     <style>
     .stCarousel, [data-testid="stHtml"] iframe, .carousel-item img {
@@ -25,39 +41,99 @@ st.markdown("""
     [data-testid="element-container"] {
         margin-bottom: 0.5rem !important;
     }
+
+    .chat-message {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        background-color: #f0f2f6;
+    }
+
+    .stButton button {
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .stButton button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .sidebar-content {
+        padding: 1rem 0;
+    }
+
+    .sidebar-section {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("Perfume Zone AI✨",text_alignment="center")
-
 with st.sidebar:
-    st.title("Perfume Zone ✨")
-    st.header("Contact")
-    col1,col2=st.columns(2)
+    st.title("🏪 Perfume Zone")
+    st.header("📱 Contact Us")
+    col1, col2 = st.columns(2)
     with col1:
-        st.link_button(label='Website',url='https://perfumezonebd.com',use_container_width=True)
+        st.link_button(
+            label='🌐 Website',
+            url='https://perfumezonebd.com',
+            use_container_width=True
+        )
     with col2:
-        st.link_button(label='Whatsapp', url='https://wa.me/1625338214?text=Ami%20ekti%20perfume%20oil%20kinte%20chai',use_container_width=True)
-    st.link_button(label='Facebook', url='https://www.facebook.com/perfumezone0/',use_container_width=True)
+        st.link_button(
+            label='💬 WhatsApp',
+            url='https://wa.me/1625338214?text=Ami%20ekti%20perfume%20oil%20kinte%20chai',
+            use_container_width=True
+        )
+    st.link_button(
+        label='📘 Facebook',
+        url='https://www.facebook.com/perfumezone0/',
+        use_container_width=True
+    )
 
     st.markdown("---")
-    st.header("Developer Information")
-    st.markdown("""
+
+    st.header("👨‍💻 Developer")
+    with st.container():
+        st.markdown("""
             **Mohiuddin Mahady**  
-            *BSc in CSE*  
+            *BSc in Computer Science & Engineering*  
             Mymensingh Engineering College  
             *(Affiliated with Dhaka University)*
-            """)
+
+            ---
+            🚀 **Built with:**
+            - LangChain
+            - Groq API
+            - OpenRouter API
+            - HuggingFace Embeddings
+            - ChromaDB
+            - Streamlit
+        """)
+
     col3, col4 = st.columns([1, 1])
     with col3:
-        st.link_button("LinkedIn", "https://www.linkedin.com/in/mohiuddin-mahady/", use_container_width=True)
+        st.link_button(
+            "🔗 LinkedIn",
+            "https://www.linkedin.com/in/mohiuddin-mahady/",
+            use_container_width=True
+        )
     with col4:
-        st.link_button("Github", 'https://www.github.com/mahady13', use_container_width=True)
+        st.link_button(
+            "💻 GitHub",
+            'https://www.github.com/mahady13',
+            use_container_width=True
+        )
 
-PRIMARY_MODEL="inclusionai/ling-3.0-flash:free"
-BACKUP_MODEL="openrouter/free"
+# PRIMARY_MODEL="inclusionai/ling-3.0-flash:free"
+# groq_llama="llama-3.1-8b-instant"
+# groq_openai="openai/gpt-oss-120b"
+# BACKUP_MODEL="openrouter/free"
 
-api_key=os.getenv("OPENROUTER_API_KEY")
+# api_key=os.getenv("OPENROUTER_API_KEY")
 
 @st.cache_resource
 def load_embedding():
@@ -68,92 +144,204 @@ embedding=load_embedding()
 
 @st.cache_resource
 def load_vectorstore():
+    asset_directory="./assets"
     persist_directory='./chromadb'
     if os.path.exists(persist_directory) and os.listdir(persist_directory):
         vectorstore=Chroma(
             persist_directory=persist_directory,embedding_function=embedding,
         )
         return vectorstore
+    elif os.path.exists(asset_directory) and os.listdir(asset_directory):
+        loader=PyPDFDirectoryLoader(asset_directory)
+        docs=loader.load()
+
+        splitter=RecursiveCharacterTextSplitter(
+            chunk_size=500,
+            chunk_overlap=50
+        )
+        chunks=splitter.split_documents(docs)
+        vectorstore=Chroma.from_documents(
+            documents=chunks,
+            embedding=embedding,
+            persist_directory=persist_directory
+        )
+        return vectorstore
     return None
 
 vectorstore=load_vectorstore()
 
-@st.cache_resource
-def get_llm(model_id):
-    return ChatOpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        model=model_id,
-        api_key=api_key,
-        max_tokens=1000,
-        temperature=0.3,
-        default_headers={
-            "HTTP-Referer":"https://perfumezoneai.streamlit.app/",
-            "X-Title":"PerfumeZone AI"
-        }
-    )
 
+MODEL_CONFIGS = [
+
+    {
+        "provider": "groq1",
+        "model": "openai/gpt-oss-120b",
+        "api_key": os.getenv("GROQ_API_KEY"),
+        "class": ChatGroq
+    },
+
+    {
+        "provider": "groq2",
+        "model": "openai/gpt-oss-20b",
+        "api_key": os.getenv("GROQ_API_KEY"),
+        "class": ChatGroq
+    },
+
+    {
+        "provider": "groq3",
+        "model": "qwen/qwen3.6-27b",
+        "api_key": os.getenv("GROQ_API_KEY"),
+        "class": ChatGroq
+    },
+
+    {
+        "provider": "openrouter1",
+        "model": "openrouter/free",
+        "api_key": os.getenv("OPENROUTER_API_KEY"),
+        "base_url": "https://openrouter.ai/api/v1",
+        "class": ChatOpenAI
+    },
+
+    {
+        "provider": "openrouter2",
+        "model": "mistralai/mistral-7b-instruct:free",
+        "api_key": os.getenv("OPENROUTER_API_KEY"),
+        "base_url": "https://openrouter.ai/api/v1",
+        "class": ChatOpenAI
+    }
+]
+
+
+@st.cache_resource
+def get_llm_with_fallback():
+
+    for config in MODEL_CONFIGS:
+        try:
+            if not config.get("api_key"):
+                continue
+            if config["provider"] == "groq1":
+                llm = ChatGroq(
+                    model=config["model"],
+                    api_key=config["api_key"],
+                    temperature=0.3,
+                    max_tokens=1000,
+                    timeout=20
+                )
+
+            elif config["provider"] == "groq2":
+                llm = ChatGroq(
+                    model=config["model"],
+                    api_key=config["api_key"],
+                    temperature=0.3,
+                    max_tokens=500,
+                    timeout=20
+                )
+
+            elif config["provider"] == "groq3":
+                llm = ChatGroq(
+                    model=config["model"],
+                    api_key=config["api_key"],
+                    temperature=0.3,
+                    max_tokens=500,
+                    timeout=20
+                )
+
+            elif config["provider"] == "openrouter2":
+                llm = ChatOpenAI(
+                    model=config["model"],
+                    api_key=config["api_key"],
+                    base_url=config["base_url"],
+                    temperature=0.3,
+                    max_tokens=1000,
+                    timeout=20
+                )
+            elif config['provider']=='openrouter1':
+                llm=ChatOpenAI(
+                    model=config["model"],
+                    api_key=config["api_key"],
+                    temperature=0.3,
+                    max_tokens=1000,
+                    timeout=20
+                )
+
+            with st.expander("Running Model"):
+                st.markdown(f"Using: {config['provider']} - {config['model']}")
+            return llm
+
+        except Exception as e:
+            st.warning(f"⚠️{config['provider']} failed: {str(e)[:50]}")
+            continue
+
+    st.error("❌ No working LLM found. Please Contact Our Facebook Page or Whatsapp")
+    return None
 
 
 def get_response(user_query,chat_history,vectorstore):
     context=""
     if vectorstore is not None:
-        retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":3})
-        relevant_docs=retriever.invoke(user_query)
+        vector_retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":5})
+        all_docs=vectorstore.get()
+        documents = [doc for doc in all_docs['documents']]
+        bm25_retriever = BM25Retriever.from_documents(documents)
+        bm25_retriever.k = 5
+        ensemble_retriever = EnsembleRetriever(
+            retrievers=[bm25_retriever, vector_retriever],
+            weights=[0.5, 0.5]
+        )
+
+        relevant_docs=ensemble_retriever.invoke(user_query)
         context="\n\n".join([doc.page_content for doc in relevant_docs])
-
+    trimmed_history = chat_history[-4:]
     template = """
-    You are "Perfume Zone AI", the elite, enthusiastic, and highly professional Fragrance Expert for "Perfume Zone" (https://perfumezonebd.com). 
-    Our shop specializes in premium, long-lasting Perfume Oils (Attar) and Sprays.
+    You are "Perfume Zone AI" - expert fragrance consultant for Perfume Zone BD (https://perfumezonebd.com). Specializing in premium Attar oils and sprays.
 
-    ### 1. Pricing Structure Rules (CRITICAL)
-    - Always look closely at the "GENERAL FRAGRANCE PRICING" section in the Document Context.
-    - Standard Product prices are:
-      * 3ml (Roll-on only): 110 TK per pcs
-      * 6ml: 250 TK
-      * 15ml: 450 TK
-      * 30ml: 800 TK
-      * 50ml: 1350 TK
-      * 100ml: 2340 TK
-    - NEVER confuse "Shipping Cost / Delivery Charges" (60tk/100tk/120tk) with the actual perfume bottle price! 
-    - When a customer asks for a perfume price, print the complete bottle size price chart clearly so they can choose.
+    ### PRICING (ALWAYS use this chart):
+    3ml (roll-on): 110 TK | 6ml: 250 TK | 15ml: 450 TK | 30ml: 800 TK | 50ml: 1350 TK | 100ml: 2340 TK
+    ⚠️ NEVER confuse with shipping: Dhaka 60tk | Suburban 100tk | Outside 120tk
+    ️️⚠️ NEVER give discounts until total price is above 1500,if above 1500tk,either give free delivery or give 10% discounts.
+    If customer wants to but,drive them to our website/whatsapp/phone number
+    
+    ### PRODUCT KNOWLEDGE:
+    • Check context for Men's, Women's, Unisex, or New Arrivals
+    • Mention fragrance notes
+    • Suggest Top 10 Best Sellers when relevant
+    • If exact perfume missing, recommend similar alternatives
 
-    ### 2. Tone & Language
-    - Use elegant emojis (✨, 💎, 🛒, 🧴) to structure replies nicely.
-    - Always reply in the exact language style of the user (Bangla, English, or Banglish).
+    ### PRODUCT TYPES:
+    • Spray: Halal alcohol-based
+    • Roll-on: 100% perfume oil (alcohol-free)
+    • 3ml ONLY roll-on, all other sizes both available
 
-    ### 3. Missing Info & Links
-    - If a specific perfume is completely missing from the stock list, tell them nicely and guide them to check live stock: [Perfume Zone Official Website](https://perfumezonebd.com).
-    - If they want to purchase, provide this exact link: [Click here to Buy on Perfume Zone](https://perfumezonebd.com).
+    ### WHEN PERFUME NOT FOUND:
+    • Suggest similar alternatives from catalog
 
-    Document Context (Our Active Inventory & Prices):
+    ### RESPONSE STYLE:
+    • Reply in user's language (Bangla/English/Banglish)
+    • Use emojis (professional,luxurious, cool vibes) sparingly
+    • Show full price chart ONLY WHEN price queries
+    • Be helpful, concise, and professional
+
+    ### Context:
     {context}
 
-    Conversation History:
+    ### History:
     {chat_history}
 
-    Customer Question:
+    ### Question:
     {user_query}
+
+    Provide accurate, helpful response. If unsure, suggest contacting 01625-338214.
     """
     prompt=ChatPromptTemplate.from_template(template)
-    try:
-        llm = get_llm(PRIMARY_MODEL)
-        chain = prompt | llm | StrOutputParser()
-        output=chain.stream({
-            "context": context,
-            "chat_history": chat_history,
-            "user_query": user_query
-        })
-        return output
-    except Exception as primary_error:
-        st.warning(f"Primary model slow/unavailable. Switching to backup router...")
-        llm = get_llm(BACKUP_MODEL)
-        chain = prompt | llm | StrOutputParser()
-        output=chain.stream({
-            "context": context,
-            "chat_history": chat_history,
-            "user_query": user_query
-        })
-        return output
+    llm = get_llm_with_fallback()
+    chain = prompt | llm | StrOutputParser()
+    output=chain.stream({
+    "context": context,
+    "chat_history": trimmed_history,
+    "user_query": user_query
+    })
+    return output
+
 if "chat_history" not in st.session_state:
     st.session_state.chat_history=[
         AIMessage(content="আসসালামু আলাইকুম! পারফিউম জোনে আপনাকে স্বাগতম। ✨ আজকে কোন চমৎকার সুগন্ধি দিয়ে আপনার মন ভালো করব বলুন? 🍊")
@@ -187,17 +375,18 @@ perfume_banners = [
     }
 ]
 
-st.write("---")
-carousel(items=perfume_banners, width=1.0)
-st.write("---")
+st.markdown("---")
+with st.container():
+    carousel(items=perfume_banners, width=1.0)
+st.markdown("---")
 
 st.subheader("💬 Chat with Perfume Zone AI")
 for message in st.session_state.chat_history:
     if isinstance(message,AIMessage):
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant",avatar="✨"):
             st.markdown(message.content)
     elif isinstance(message,HumanMessage):
-        with st.chat_message("user"):
+        with st.chat_message("user",avatar="👤"):
             st.markdown(message.content)
 
 user_query=st.chat_input("Type your message here")
@@ -213,3 +402,22 @@ if user_query:
 
     except Exception as e:
         st.exception(e)
+
+st.markdown("---")
+with st.expander("💡 Quick Tips for Using the Chat"):
+    st.markdown("""
+        - **Ask about prices:** "What's the price of Dior Sauvage?"
+        - **Get recommendations:** "Recommend a fragrance for summer"
+        - **Check availability:** "Do you have Creed Aventus in stock?"
+        - **Women's fragrances:** "Show me women's floral perfumes"
+        - **Best sellers:** "What are your top 10 selling fragrances?"
+        - **Delivery info:** "What's the delivery charge for Dhaka?"
+        - **Product types:** "What's the difference between spray and roll-on?"
+    """)
+
+if st.sidebar.checkbox("🔧 Debug Mode", value=False):
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("System Status")
+    st.sidebar.write(f"Vector Store: {'✅ Loaded' if vectorstore else '❌ Not Available'}")
+    st.sidebar.write(f"Embedding Model: {'✅ Loaded' if embedding else '❌ Not Available'}")
+    st.sidebar.write(f"Total Message You've Sent: {len(st.session_state.chat_history)}")
