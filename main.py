@@ -151,21 +151,21 @@ def load_vectorstore():
             persist_directory=persist_directory,embedding_function=embedding,
         )
         return vectorstore
-    elif os.path.exists(asset_directory) and os.listdir(asset_directory):
-        loader=PyPDFDirectoryLoader(asset_directory)
-        docs=loader.load()
-
-        splitter=RecursiveCharacterTextSplitter(
-            chunk_size=500,
-            chunk_overlap=50
-        )
-        chunks=splitter.split_documents(docs)
-        vectorstore=Chroma.from_documents(
-            documents=chunks,
-            embedding=embedding,
-            persist_directory=persist_directory
-        )
-        return vectorstore
+    # elif os.path.exists(asset_directory) and os.listdir(asset_directory):
+    #     loader=PyPDFDirectoryLoader(asset_directory)
+    #     docs=loader.load()
+    #
+    #     splitter=RecursiveCharacterTextSplitter(
+    #         chunk_size=500,
+    #         chunk_overlap=50
+    #     )
+    #     chunks=splitter.split_documents(docs)
+    #     vectorstore=Chroma.from_documents(
+    #         documents=chunks,
+    #         embedding=embedding,
+    #         persist_directory=persist_directory
+    #     )
+    #     return vectorstore
     return None
 
 vectorstore=load_vectorstore()
