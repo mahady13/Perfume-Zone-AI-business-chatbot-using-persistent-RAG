@@ -419,8 +419,8 @@ with st.expander("💡 Quick Tips for Using the Chat"):
         - **Delivery info:** "What's the delivery charge for Dhaka?"
         - **Product types:** "What's the difference between spray and roll-on?"
     """)
-
-if st.sidebar.checkbox("🔧 Debug Mode", value=False):
+st.sidebar.markdown("---")
+if st.sidebar.checkbox("Stats", value=False):
     st.sidebar.markdown("---")
     st.sidebar.subheader("System Status")
     st.sidebar.write(f"Vector Store: {'✅ Loaded' if vectorstore else '❌ Not Available'}")
