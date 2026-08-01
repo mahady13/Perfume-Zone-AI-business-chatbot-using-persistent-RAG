@@ -7,6 +7,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
+
 # from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_groq import ChatGroq
 from langchain_chroma import Chroma
@@ -137,7 +138,7 @@ with st.sidebar:
 
 @st.cache_resource
 def load_embedding():
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en-v1.5")
     return embeddings
 
 embedding=load_embedding()
@@ -156,8 +157,9 @@ def load_vectorstore():
     #     docs=loader.load()
     #
     #     splitter=RecursiveCharacterTextSplitter(
-    #         chunk_size=500,
-    #         chunk_overlap=50
+    #         separators=["\n\n", "\n"],
+    #         chunk_size=180,
+    #         chunk_overlap=20
     #     )
     #     chunks=splitter.split_documents(docs)
     #     vectorstore=Chroma.from_documents(
@@ -169,7 +171,6 @@ def load_vectorstore():
     return None
 
 vectorstore=load_vectorstore()
-
 
 MODEL_CONFIGS = [
 
@@ -259,6 +260,7 @@ def get_llm_with_fallback():
                 llm=ChatOpenAI(
                     model=config["model"],
                     api_key=config["api_key"],
+                    base_url=config["base_url"],
                     temperature=0.3,
                     max_tokens=1000,
                     timeout=20
@@ -279,9 +281,10 @@ def get_llm_with_fallback():
 def get_response(user_query,chat_history,vectorstore):
     context=""
     if vectorstore is not None:
-        vector_retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":5})
-        all_docs=vectorstore.get()
-        bm25_retriever = BM25Retriever.from_texts(all_docs)
+        vector_retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":10})
+        all_docs = vectorstore._collection.get(include=['documents'])
+        all_texts = all_docs['documents']
+        bm25_retriever = BM25Retriever.from_texts(all_texts)
         bm25_retriever.k = 5
         ensemble_retriever = EnsembleRetriever(
             retrievers=[bm25_retriever, vector_retriever],
@@ -290,7 +293,7 @@ def get_response(user_query,chat_history,vectorstore):
 
         relevant_docs=ensemble_retriever.invoke(user_query)
         context="\n\n".join([doc.page_content for doc in relevant_docs])
-    trimmed_history = chat_history[-4:]
+    trimmed_history = chat_history[-3:]
     template = """
     You are "Perfume Zone AI" - expert fragrance consultant for Perfume Zone BD (https://perfumezonebd.com). Specializing in premium Attar oils and sprays.
 
@@ -311,8 +314,11 @@ def get_response(user_query,chat_history,vectorstore):
     • Roll-on: 100% perfume oil (alcohol-free)
     • 3ml ONLY roll-on, all other sizes both available
 
-    ### WHEN PERFUME NOT FOUND:
-    • Suggest similar alternatives from catalog
+    ### CRITICAL INSTRUCTION:
+    - If the exact product name (like "Creed Aventus") is found in the context, if its found written in the context then IT IS IN STOCK, ALWAYS confirm this.
+    - ONLY recommend similar items only if the original is strictly confirmed missing from the context.
+    - Be careful: Do not confuse a CLONE (যেমন Armaf) with the ORIGINAL (Creed). 
+    - If you find the original, DO NOT recommend the clone.
 
     ### RESPONSE STYLE:
     • Reply in user's language (Bangla/English/Banglish)
