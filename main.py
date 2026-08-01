@@ -281,8 +281,7 @@ def get_response(user_query,chat_history,vectorstore):
     if vectorstore is not None:
         vector_retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":5})
         all_docs=vectorstore.get()
-        documents = [doc for doc in all_docs['documents']]
-        bm25_retriever = BM25Retriever.from_documents(documents)
+        bm25_retriever = BM25Retriever.from_texts(all_docs)
         bm25_retriever.k = 5
         ensemble_retriever = EnsembleRetriever(
             retrievers=[bm25_retriever, vector_retriever],
