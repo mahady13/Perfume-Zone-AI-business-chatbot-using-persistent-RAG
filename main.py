@@ -420,7 +420,7 @@ with st.expander("💡 Quick Tips for Using the Chat"):
         - **Product types:** "What's the difference between spray and roll-on?"
     """)
 st.sidebar.markdown("---")
-if st.sidebar.checkbox("Stats", value=False):
+if st.sidebar.checkbox("Stats for nerds", value=False):
     st.sidebar.markdown("---")
     st.sidebar.subheader("System Status")
     st.sidebar.write(f"Vector Store: {'✅ Loaded' if vectorstore else '❌ Not Available'}")
